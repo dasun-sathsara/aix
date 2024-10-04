@@ -1,10 +1,9 @@
 from datetime import UTC, datetime
 from pathlib import Path
 
-from pydantic import BaseModel, Field
-
 from api.api_interface import API
 from data.message import Message
+from pydantic import BaseModel, Field
 
 
 class Config(BaseModel):
@@ -15,7 +14,7 @@ class Config(BaseModel):
     markdown_language: str = Field('plaintext', description='The markdown language for the output markdown file.')
 
 
-class App:
+class ConversationHandler:
     def __init__(self, api: API, config: Config):
         self._api = api
         self._config = config
