@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 
-def read_system_prompt(name: str, directory: str = 'system_prompts') -> str | None:
+def read_system_prompt(name: str, directory: str = 'system_prompts') -> str:
     """
     Reads the content of a specific system prompt file from a specified directory.
     """
@@ -12,4 +12,5 @@ def read_system_prompt(name: str, directory: str = 'system_prompts') -> str | No
         if file_name == name:
             with (Path(directory) / file).open() as f:
                 return f.read().strip()
-    return None
+
+    raise FileNotFoundError(f"System prompt file '{name}' not found in '{directory}'")

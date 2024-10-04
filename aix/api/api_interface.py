@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from data.api_response import APIResponse
-from data.message import Message
+from aix.data.api_response import APIResponse
+from aix.data.message import Message
 
 
 class API(ABC):

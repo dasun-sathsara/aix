@@ -2,10 +2,9 @@ from typing import Any
 
 import google.generativeai as genai  # type: ignore
 
-from data.api_response import APIResponse
-from data.message import Message
-
-from .api_interface import API
+from aix.api.api_interface import API
+from aix.data.api_response import APIResponse
+from aix.data.message import Message
 
 
 class GeminiAPI(API):

@@ -3,10 +3,9 @@ from typing import Literal
 import openai
 import tiktoken
 
-from data.api_response import APIResponse
-from data.message import Message
-
-from .api_interface import API
+from aix.api.api_interface import API
+from aix.data.api_response import APIResponse
+from aix.data.message import Message
 
 
 class GenericAPI(API):

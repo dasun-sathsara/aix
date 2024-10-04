@@ -1,9 +1,10 @@
 from datetime import UTC, datetime
 from pathlib import Path
 
-from api.api_interface import API
-from data.message import Message
 from pydantic import BaseModel, Field
+
+from aix.api.api_interface import API
+from aix.data.message import Message
 
 
 class Config(BaseModel):
@@ -15,9 +16,20 @@ class Config(BaseModel):
 
 
 class ConversationHandler:
-    def __init__(self, api: API, config: Config):
+    def __init__(self, api: API, config: Config | None = None):
         self._api = api
-        self._config = config
+
+        if config is None:
+            config = Config(
+                print_code_block=True,
+                print_error_block=True,
+                print_file_content=True,
+                save_conversation=False,
+                markdown_language='plaintext',
+            )
+
+        self.set_config(config)
+
         self._printing_history: list[Message] = []
         self._timestamp = datetime.now(tz=UTC).strftime('%Y-%m-%d_%H-%M-%S')
 
@@ -131,10 +143,11 @@ class ConversationHandler:
 
         Path(path).parent.mkdir(parents=True, exist_ok=True)
 
-        with Path(path).open('w') as f:
+        with Path(path).open('w', encoding='utf-8') as f:
             for message in self._printing_history:
                 if message.role == 'User':
-                    f.write(f'\n## Me\n{message.content}\n')
+                    f.write('\n## Me\n')
+                    f.write(f'{message.content}\n')
                 else:
-                    f.write(f'\n## You\n{message.content}\n')
-                    f.write('---')
+                    f.write('\n## You\n \n')
+                    f.write(f'{message.content}\n')

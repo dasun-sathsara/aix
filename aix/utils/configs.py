@@ -20,8 +20,8 @@ class QwenModels(Enum):
 
 
 class OpenAIModels(Enum):
-    CHATGPT_4O_LATEST = 'chatgpt-4o-latest'
-    GPT_4O_MINI_2024_07_18 = 'gpt-4o-mini-2024-07-18'
+    CHATGPT_4O = 'chatgpt-4o-latest'
+    GPT4O_MINI = 'gpt-4o-mini-2024-07-18'
 
 
 class GeminiModels(Enum):
