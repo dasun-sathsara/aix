@@ -91,7 +91,15 @@ class App:
     def _format_block(self, block_type: str, content: str) -> str:
         """Format a block of content with markdown."""
 
-        return f'**{block_type}:**\n```{self._config.markdown_language}\n{content.strip()}\n```'
+        markdown_language = self._config.markdown_language
+
+        if block_type == 'Prompt':
+            markdown_language = 'plaintext'
+
+        if block_type == 'Error Block':
+            markdown_language = 'plaintext'
+
+        return f'**{block_type}:**\n```{markdown_language}\n{content.strip()}\n```'
 
     def clear_session(self) -> None:
         """Clear the session."""

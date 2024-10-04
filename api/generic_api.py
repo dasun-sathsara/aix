@@ -1,3 +1,5 @@
+from typing import Literal
+
 import openai
 import tiktoken
 
@@ -52,7 +54,7 @@ class GenericAPI(API):
             if message['role'] == 'system':
                 continue
 
-            role = 'User' if message['role'] == 'user' else 'Assistant'
+            role: Literal['User', 'Assistant'] = 'User' if message['role'] == 'user' else 'Assistant'
             history.append(Message(role=role, content=message['content']))
 
         return history
@@ -79,7 +81,8 @@ class GenericAPI(API):
 
         try:
             self._conversation.append({'role': 'user', 'content': message})
-            response = self._client.chat.completions.create(
+
+            response = self._client.chat.completions.create(  # type: ignore
                 model=self._model_name,
                 messages=self._conversation,
                 temperature=self._temperature,

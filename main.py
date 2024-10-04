@@ -10,8 +10,8 @@ def main():
         model=gemini_settings.models.GEMINI_FLASH.value,
         system_prompt=read_system_prompt('general_assistant'),
     )
-    
-    app = App(api=gemini, config=Config(markdown_language='python', print_file_content=True, print_code_block=False))
+
+    app = App(api=gemini, config=Config(markdown_language='python', print_file_content=True, print_code_block=True))
 
     code_block = r"""
     def add(a, b):
