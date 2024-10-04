@@ -27,7 +27,7 @@ class App:
 
     def send_message(
         self, prompt: str, code_block: str | None = None, error_block: str | None = None, files: list[str] | None = None
-    ) -> APIResponse:
+    ) -> None:
         llm_prompt = self._create_llm_prompt(prompt, code_block, error_block, files)
         user_prompt = self._create_user_prompt(prompt, code_block, error_block, files)
         self._printing_history.append(user_prompt)
@@ -35,15 +35,7 @@ class App:
         response = self._api.send_message(llm_prompt)
         self._printing_history.append(Message(role='Assistant', content=response.message))
 
-        with Path('print.md').open('w') as f:
-            for m in self._printing_history:
-                if m.role == 'User':
-                    f.write(f'\n{m.content}\n\n')
-                else:
-                    f.write(f'\n{m.content}\n')
-                    f.write('---')
-
-        return response
+        self.save_to_disk('output.md')
 
     def _create_user_prompt(
         self, prompt: str, code_block: str | None = None, error_block: str | None = None, files: list[str] | None = None
@@ -121,3 +113,11 @@ class App:
 
     def save_to_disk(self, path: str) -> None:
         """Save the conversation to a file."""
+
+        with Path(path).open('w') as f:
+            for message in self._printing_history:
+                if message.role == 'User':
+                    f.write(f'## Me\n\n{message.content}\n\n')
+                else:
+                    f.write(f'## You\n\n{message.content}\n\n')
+                    f.write('---')

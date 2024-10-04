@@ -13,19 +13,13 @@ class GenericAPI(API):
     """
 
     def __init__(
-        self,
-        api_key: str,
-        model: str,
-        system_prompt: str,
-        base_url: str,
-        temperature: float = 0.85,
-        max_tokens: int = 8192,
+        self, api_key: str, model: str, system_prompt: str, base_url: str, temperature: float = 0.85, max_tokens: int = 8192
     ) -> None:
         """
         Initializes the GenericAPI class with the provided configuration,
         including setting the API key, base URL, and conversational parameters.
         """
-        
+
         self._client = openai.OpenAI(api_key=api_key, base_url=base_url)
         self._model_name: str = model
         self._system_prompt: str = system_prompt

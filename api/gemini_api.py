@@ -1,4 +1,6 @@
-import google.generativeai as genai
+from typing import Any
+
+import google.generativeai as genai  # type: ignore
 
 from data.api_response import APIResponse
 from data.message import Message
@@ -23,7 +25,7 @@ class GeminiAPI(API):
         self._system_prompt: str = system_prompt
         self._conversation: list[Message] = []
 
-        self._config: dict[str, any] = {
+        self._config: dict[str, Any] = {
             'temperature': temperature,
             'max_output_tokens': max_tokens,
             'top_p': 0.95,

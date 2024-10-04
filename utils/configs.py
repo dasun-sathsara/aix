@@ -3,8 +3,8 @@ from enum import Enum
 from typing import ClassVar
 
 from dotenv import load_dotenv
-from pydantic import ConfigDict, Field
-from pydantic_settings import BaseSettings
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Load environment variables
 load_dotenv()
@@ -31,27 +31,27 @@ class GeminiModels(Enum):
 
 # Settings classes with updated protected namespaces
 class DeepSeekSettings(BaseSettings):
-    model_config = ConfigDict(protected_namespaces=('settings_',))
+    model_config = SettingsConfigDict(protected_namespaces=('settings_',))
     model_name: DeepSeekModels = DeepSeekModels.DEEPSEEK_CHAT
     base_url: str = 'https://api.deepseek.com/beta'
     api_key: str = Field(default=os.getenv('DEEPSEEK_CHAT_API_KEY'))
 
 
 class QwenSettings(BaseSettings):
-    model_config = ConfigDict(protected_namespaces=('settings_',))
+    model_config = SettingsConfigDict(protected_namespaces=('settings_',))
     model_name: QwenModels = QwenModels.QWEN_INSTRUCT
     base_url: str = 'https://api.hyperbolic.xyz/v1'
     api_key: str = Field(default=os.getenv('QWEN_API_KEY'))
 
 
 class OpenAISettings(BaseSettings):
-    model_config = ConfigDict(protected_namespaces=('settings_',))
+    model_config = SettingsConfigDict(protected_namespaces=('settings_',))
     models: ClassVar = OpenAIModels
     api_key: str = Field(default=os.getenv('OPENAI_API_KEY'))
 
 
 class GeminiSettings(BaseSettings):
-    model_config = ConfigDict(protected_namespaces=('settings_',))
+    model_config = SettingsConfigDict(protected_namespaces=('settings_',))
     models: ClassVar = GeminiModels
     api_key: str = Field(default=os.getenv('GEMINI_API_KEY'))
 
