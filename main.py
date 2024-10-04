@@ -11,7 +11,9 @@ def main():
         system_prompt=read_system_prompt('general_assistant'),
     )
 
-    app = App(api=gemini, config=Config(markdown_language='python', print_file_content=True, print_code_block=True))
+    app = App(
+        api=gemini, config=Config(print_code_block=False, print_error_block=False, print_file_content=False, markdown_language='python')
+    )
 
     code_block = r"""
     def add(a, b):
@@ -28,6 +30,8 @@ def main():
     """
 
     app.send_message('Describe what is in my prompt', code_block, error_block)
+    app.send_message('Is that so?')
+    app.send_message('Describe our whole conversation from one prompt to the next')
 
 
 if __name__ == '__main__':

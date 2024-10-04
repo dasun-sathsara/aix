@@ -9,6 +9,7 @@ quote-style = "single"
 [tool.ruff.lint]
 ignore = [
     'B006',   # Learn Python yo!
+    "TRY401", # Avoid using bare `except` clauses
     'C408',   # Unnecessary dict/list call
     'COM819', # Trailing commas is da bomb
     "COM812", # Trailing commas is da bomb

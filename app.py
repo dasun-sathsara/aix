@@ -1,9 +1,9 @@
+from datetime import UTC, datetime
 from pathlib import Path
 
 from pydantic import BaseModel, Field
 
 from api.api_interface import API
-from data.api_response import APIResponse
 from data.message import Message
 
 
@@ -20,14 +20,18 @@ class App:
         self._api = api
         self._config = config
         self._printing_history: list[Message] = []
+        self._timestamp = datetime.now(tz=UTC).strftime('%Y-%m-%d_%H-%M-%S')
 
     def set_config(self, config: Config) -> None:
         """Update the configuration."""
+
         self._config = config
 
     def send_message(
         self, prompt: str, code_block: str | None = None, error_block: str | None = None, files: list[str] | None = None
     ) -> None:
+        """Send a message to the API and save the conversation."""
+
         llm_prompt = self._create_llm_prompt(prompt, code_block, error_block, files)
         user_prompt = self._create_user_prompt(prompt, code_block, error_block, files)
         self._printing_history.append(user_prompt)
@@ -36,6 +40,9 @@ class App:
         self._printing_history.append(Message(role='Assistant', content=response.message))
 
         self.save_to_disk('output.md')
+
+        if self._config.save_conversation:
+            self.save_to_disk(f'outputs/{self._timestamp}.md')
 
     def _create_user_prompt(
         self, prompt: str, code_block: str | None = None, error_block: str | None = None, files: list[str] | None = None
@@ -106,6 +113,7 @@ class App:
 
         self._api.clear_session()
         self._printing_history.clear()
+        self._timestamp = datetime.now(tz=UTC).strftime('%Y-%m-%d_%H-%M-%S')
 
     def rewind(self, count: int = 1) -> None:
         """Rewind the conversation by a specified number of user-assistant pairs."""
@@ -122,10 +130,12 @@ class App:
     def save_to_disk(self, path: str) -> None:
         """Save the conversation to a file."""
 
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+
         with Path(path).open('w') as f:
             for message in self._printing_history:
                 if message.role == 'User':
-                    f.write(f'## Me\n\n{message.content}\n\n')
+                    f.write(f'\n## Me\n{message.content}\n')
                 else:
-                    f.write(f'## You\n\n{message.content}\n\n')
+                    f.write(f'\n## You\n{message.content}\n')
                     f.write('---')
