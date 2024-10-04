@@ -16,7 +16,6 @@ ignore = [
     'D104',   # Missing docstring in public packag
     'W293',   # Blank line contains whitespace
     'D107',   # Missing docstring in __init__
-    'D203',   # 1 blank line required before class docstring
     'D213',   # Multi-line docstring summary should start at the second line
     'E501',   # Line too long
     'E731',   # Do not assign to lambda
@@ -25,7 +24,6 @@ ignore = [
     'RET503', # No explicit return None (all the other rules are about removing unnecessary things like this)
     'RUF012', # Mutable class attributes should be annotated with typing.ClassVar
     'S311',   # Standard pseudo-random generators are not suitable for security/cryptographic purposes
-    'SIM108', # don't like ternary operator
     'SIM300', # Yoda is wiser than you!
     'TRY003', # Avoid long messages outside of exception class
     #'TRY004',  # Use TypeError instead of ValueError

@@ -25,6 +25,7 @@ class GenericAPI(API):
         Initializes the GenericAPI class with the provided configuration,
         including setting the API key, base URL, and conversational parameters.
         """
+        
         self._client = openai.OpenAI(api_key=api_key, base_url=base_url)
         self._model_name: str = model
         self._system_prompt: str = system_prompt
@@ -39,6 +40,7 @@ class GenericAPI(API):
         """
         Rewinds the conversation by a specified number of user-assistant pairs.
         """
+
         if count < 1:
             raise ValueError('Rewind count must be at least 1')
 
@@ -50,6 +52,7 @@ class GenericAPI(API):
         """
         Returns a copy of the current conversation history.
         """
+
         history = []
         for message in self._conversation:
             if message['role'] == 'system':
@@ -64,12 +67,14 @@ class GenericAPI(API):
         """
         Resets the chat session and clears the conversation history.
         """
+
         self._conversation.clear()
 
     def _count_tokens(self, text: str) -> int:
         """
         Counts the number of tokens in a given text.
         """
+
         encoding = tiktoken.get_encoding('o200k_base')
         return len(encoding.encode(text))
 
@@ -77,6 +82,7 @@ class GenericAPI(API):
         """
         Sends a message to the AI model and returns the response along with token usage.
         """
+
         try:
             self._conversation.append({'role': 'user', 'content': message})
             response = self._client.chat.completions.create(

@@ -38,6 +38,7 @@ class GeminiAPI(API):
         """
         Creates and returns a GenerativeModel instance with the configured parameters.
         """
+
         return genai.GenerativeModel(
             model_name=self._model_name,
             generation_config=self._config,
@@ -48,6 +49,7 @@ class GeminiAPI(API):
         """
         Sends a message to the AI model and returns the response along with token usage.
         """
+
         try:
             self._conversation.append(Message(role='User', content=message))
             response = self._chat_session.send_message(message)
@@ -66,6 +68,7 @@ class GeminiAPI(API):
         """
         Resets the chat session and clears the conversation history.
         """
+
         self._chat_session = self._model.start_chat(history=[])
         self._conversation.clear()
 
@@ -73,12 +76,14 @@ class GeminiAPI(API):
         """
         Returns a copy of the current conversation history.
         """
+
         return self._conversation.copy()
 
     def rewind(self, count: int = 1) -> None:
         """
         Rewinds the conversation by a specified number of user-assistant pairs.
         """
+
         if count < 1:
             raise ValueError('Rewind count must be at least 1')
 

@@ -11,6 +11,7 @@ class OpenAI_API(GenericAPI):
         Initializes the OpenAI_API class with the provided configuration,
         using the default OpenAI base URL.
         """
+
         super().__init__(
             api_key=api_key,
             model=model,
