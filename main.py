@@ -10,7 +10,9 @@ def main():
         model=gemini_settings.models.GEMINI_FLASH.value,
         system_prompt=read_system_prompt('general_assistant'),
     )
-    app = App(api=gemini, config=Config(markdown_language='python', print_file_content=False, print_code_block=False))
+    
+    app = App(api=gemini, config=Config(markdown_language='python', print_file_content=True, print_code_block=False))
+
     code_block = r"""
     def add(a, b):
         return a + b
@@ -25,8 +27,7 @@ def main():
     TypeError: unsupported operand type(s) for +: 'int' and 'str'
     """
 
-    files = ['.env', 'main.py']
-    app.send_message('Explain this code block', code_block, error_block, files)
+    app.send_message('Describe what is in my prompt', code_block, error_block)
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from api.api_interface import API
+from data.api_response import APIResponse
 from data.message import Message
 
 
@@ -16,59 +17,71 @@ class Config(BaseModel):
 
 class App:
     def __init__(self, api: API, config: Config):
-        self.api = api
-        self.config = config
-        self.printing_history: list[Message] = []
+        self._api = api
+        self._config = config
+        self._printing_history: list[Message] = []
 
     def set_config(self, config: Config) -> None:
         """Update the configuration."""
-        self.config = config
+        self._config = config
 
     def send_message(
         self, prompt: str, code_block: str | None = None, error_block: str | None = None, files: list[str] | None = None
-    ) -> None:
+    ) -> APIResponse:
         llm_prompt = self._create_llm_prompt(prompt, code_block, error_block, files)
-        with Path('temp.md').open('w', encoding='utf-8') as f:
-            f.write(llm_prompt)
+        user_prompt = self._create_user_prompt(prompt, code_block, error_block, files)
+        self._printing_history.append(user_prompt)
 
-    def _create_printing_history(
+        response = self._api.send_message(llm_prompt)
+        self._printing_history.append(Message(role='Assistant', content=response.message))
+
+        with Path('print.md').open('w') as f:
+            for m in self._printing_history:
+                if m.role == 'User':
+                    f.write(f'\n{m.content}\n\n')
+                else:
+                    f.write(f'\n{m.content}\n')
+                    f.write('---')
+
+        return response
+
+    def _create_user_prompt(
         self, prompt: str, code_block: str | None = None, error_block: str | None = None, files: list[str] | None = None
-    ) -> None:
+    ) -> Message:
         """Create the printing history for the given inputs."""
 
-        message = []
+        message_parts = []
 
-        if files and self.config.print_file_content:
-            message.extend(self._process_files(files))
+        if files and self._config.print_file_content:
+            message_parts.extend(self._process_files(files))
 
-        if code_block and self.config.print_code_block:
-            message.append(self._format_block('Code Block', code_block))
+        if code_block and self._config.print_code_block:
+            message_parts.append(self._format_block('Code Block', code_block))
 
-        if error_block and self.config.print_error_block:
-            message.append(self._format_block('Error Block', error_block))
+        if error_block and self._config.print_error_block:
+            message_parts.append(self._format_block('Error Block', error_block))
 
-        message.append(f'Prompt:\n{prompt.strip()}')
+        message_parts.append(self._format_block('Prompt', prompt.strip()))
 
-        self.printing_history.append(Message(role='User', content='\n'.join(message)))
+        return Message(role='User', content='\n'.join(message_parts))
 
     def _create_llm_prompt(
         self, prompt: str, code_block: str | None = None, error_block: str | None = None, files: list[str] | None = None
     ) -> str:
         """Create the LLM prompt from the given inputs."""
 
-        self._create_printing_history(prompt, code_block, error_block, files)
+        prompt_parts = []
 
-        with Path('print.md').open('w', encoding='utf-8') as f:
-            f.write(self.printing_history[-1].content)
+        if files:
+            prompt_parts.extend(self._process_files(files))
+        if code_block:
+            prompt_parts.append(self._format_block('Code Block', code_block))
+        if error_block:
+            prompt_parts.append(self._format_block('Error Block', error_block))
 
-        llm_prompt = []
-        if code_block and self.config.print_code_block:
-            llm_prompt.append(self._format_block('Code Block', code_block))
-        if error_block and self.config.print_error_block:
-            llm_prompt.append(self._format_block('Error Block', error_block))
-        llm_prompt.append(f'Prompt:\n{prompt.strip()}')
+        prompt_parts.append(self._format_block('Prompt', prompt.strip()))
 
-        return '\n\n'.join(llm_prompt)
+        return '\n\n'.join(filter(None, prompt_parts)).strip()
 
     def _process_files(self, files: list[str]) -> list[str]:
         """Process the list of files and return their contents."""
@@ -77,8 +90,8 @@ class App:
         for file in files:
             try:
                 content = Path(file).read_text(encoding='utf-8').strip()
-                if self.config.print_file_content:
-                    file_contents.append(f'File Name: {file}\nFile Content:\n```{self.config.markdown_language}\n{content}\n```\n')
+                if self._config.print_file_content:
+                    file_contents.append(f'**File Name**: {file}\n**File Content:**\n```{self._config.markdown_language}\n{content}\n```\n')
             except OSError as e:
                 print(f'Error reading file {file}: {e}')
         return file_contents
@@ -86,9 +99,25 @@ class App:
     def _format_block(self, block_type: str, content: str) -> str:
         """Format a block of content with markdown."""
 
-        return f'{block_type}:\n```{self.config.markdown_language}\n{content.strip()}\n```'
+        return f'**{block_type}:**\n```{self._config.markdown_language}\n{content.strip()}\n```'
 
     def clear_session(self) -> None:
         """Clear the session."""
-        self.api.clear_session()
-        self.printing_history = []
+
+        self._api.clear_session()
+        self._printing_history.clear()
+
+    def rewind(self, count: int = 1) -> None:
+        """Rewind the conversation by a specified number of user-assistant pairs."""
+
+        if count < 1:
+            raise ValueError('Rewind count must be at least 1')
+
+        self._api.rewind(count)
+
+        for _ in range(min(count, len(self._printing_history) // 2)):
+            self._printing_history.pop()  # Remove latest Assistant message
+            self._printing_history.pop()  # Remove latest User message
+
+    def save_to_disk(self, path: str) -> None:
+        """Save the conversation to a file."""
